@@ -656,7 +656,7 @@ def get_masks(model_dir, percentile, output_file):
         numpy_weights = np.array([weight.eval() for weight in weights])
         lower_thrs = [np.percentile(weight, percentile / 2.0)
                       for weight in numpy_weights]
-        upper_thrs = [np.percentile(weight, 1 - percentile / 2.0)
+        upper_thrs = [np.percentile(weight, 100 - percentile / 2.0)
                       for weight in numpy_weights]
         masks = [(weight < lower_thr) + (weight > upper_thr)
                  for weight, lower_thr, upper_thr in zip(weights, lower_thrs, upper_thrs)]
