@@ -202,7 +202,7 @@ def main(args):
                               regularization_losses, name='total_loss')
 
         # Generate masks for weights
-        weights = [tensor.values()[0] for tensor in graph.get_operations()
+        weights = [tensor.values()[0] for tensor in tf.get_default_graph().get_operations()
                    if tensor.name.endswith('weights')]
         assign_all = create_masks(weights, args.mask_file)
 
