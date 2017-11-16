@@ -461,6 +461,7 @@ def create_masks(weights, mask_file):
     masks = np.load(mask_file, encoding='bytes')
     assign_op = [tf.assign(weight, tf.multiply(weight, mask))
                  for weight, mask in zip(weights, masks)]
+    print(assign_op)
     assign_all = tf.group(*assign_op)
 
 
