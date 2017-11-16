@@ -648,7 +648,7 @@ def put_images_on_grid(images, shape=(16, 8)):
 
 
 def get_masks(model_dir, percentile, output_file):
-    with tf.Session() sess:
+    with tf.Session() as sess:
         load_model(model_dir)
         graph = tf.get_default_graph()
         weights = [tensor.values()[0] for tensor in graph.get_operations()
