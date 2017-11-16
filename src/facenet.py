@@ -659,7 +659,7 @@ def get_masks(model_dir, percentile, output_file):
         upper_thrs = [np.percentile(weight, 100 - percentile / 2.0)
                       for weight in numpy_weights]
         masks = [(weight < lower_thr) + (weight > upper_thr)
-                 for weight, lower_thr, upper_thr in zip(weights, lower_thrs, upper_thrs)]
+                 for weight, lower_thr, upper_thr in zip(numpy_weights, lower_thrs, upper_thrs)]
         np.save(output_file, masks)
 
 
