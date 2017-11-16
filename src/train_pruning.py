@@ -338,7 +338,7 @@ def train(args, sess, epoch, image_list, label_list, index_dequeue_op, enqueue_o
     summary_writer.add_summary(summary, step)
     return step
 
-def train(args, sess, epoch, image_list, label_list, index_dequeue_op, enqueue_op, image_paths_placeholder, labels_placeholder,
+def train_pruning(args, sess, epoch, image_list, label_list, index_dequeue_op, enqueue_op, image_paths_placeholder, labels_placeholder,
           learning_rate_placeholder, phase_train_placeholder, batch_size_placeholder, global_step,
           loss, train_op, summary_op, summary_writer, regularization_losses, learning_rate_schedule_file,
           assign_all=None):
@@ -458,7 +458,7 @@ def save_variables_and_metagraph(sess, saver, summary_writer, model_dir, model_n
 
 
 def create_masks(weights, mask_file):
-    masks = np.load(mask_file)
+    masks = np.load(mask_file, encoding='bytes')
     assign_op = [tf.assign(weight, tf.multiply(weight, mask))
                  for weight, mask in zip(weights, masks)]
     assign_all = tf.group(*assign_op)
