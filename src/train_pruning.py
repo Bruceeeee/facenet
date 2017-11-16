@@ -202,14 +202,9 @@ def main(args):
                               regularization_losses, name='total_loss')
 
         # Generate masks for weights
-        graph = tf.get_default_graph()
         weights = [tensor.values()[0] for tensor in graph.get_operations()
                    if tensor.name.endswith('weights')]
-        thr = 0.04
-        masks = [tf.greater(tf.abs(w), thr) for w in weights]
-        assign_ops = [tf.assign(wi, tf.multiply(tf.cast(m, tf.float32), wi))
-                      for m, wi in zip(masks, weights)]
-        assign_all = tf.group(*assign_ops)
+        assign_all = create_masks(weights, args.mask_file)
 
         # Build a Graph that trains the model with one batch of examples and
         # updates the model parameters
@@ -462,6 +457,13 @@ def save_variables_and_metagraph(sess, saver, summary_writer, model_dir, model_n
     summary_writer.add_summary(summary, step)
 
 
+def create_masks(weights, mask_file):
+    masks = np.load(mask_file)
+    assign_op = [tf.assign(weight, tf.multiply(weight, mask))
+                 for weight, mask in zip(weights, masks)]
+    assign_all = tf.group(*assign_op)
+
+
 def parse_arguments(argv):
     parser = argparse.ArgumentParser()
 
@@ -540,6 +542,8 @@ def parse_arguments(argv):
                         help='Number of images to process in a batch in the LFW test set.', default=100)
     parser.add_argument('--lfw_nrof_folds', type=int,
                         help='Number of folds to use for cross validation. Mainly used for testing.', default=10)
+    parser.add_argument('--mask_file', type=str,
+                        help='The file save your mask for weights', default='data/mask.npy')
     return parser.parse_args(argv)
 
 
