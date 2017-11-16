@@ -647,6 +647,22 @@ def put_images_on_grid(images, shape=(16, 8)):
     return img
 
 
+def get_masks(model_dir, percentile, output_file):
+    with tf.Session() sess:
+        load_model(model_dir)
+        graph = tf.get_default_graph()
+        weights = [tensor.values()[0] for tensor in graph.get_operations()
+                   if tensor.name.endswith('weights')]
+        numpy_weights = np.array([weight.eval() for weight in weights])
+        lower_thrs = [np.percentile(weight, percentile / 2.0)
+                      for weight in numpy_weights]
+        upper_thrs = [np.percentile(weight, 1 - percentile / 2.0)
+                      for weight in numpy_weights]
+        masks = [(weight < lower_thr) + (weight > upper_thr)
+                 for weight, lower_thr, upper_thr in zip(weights, lower_thrs, upper_thrs)]
+        np.save(output_file, masks)
+
+
 def write_arguments_to_file(args, filename):
     with open(filename, 'w') as f:
         for key, value in iteritems(vars(args)):
