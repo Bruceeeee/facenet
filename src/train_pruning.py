@@ -375,6 +375,8 @@ def train_pruning(args, sess, epoch, image_list, label_list, index_dequeue_op, e
         else:
             err, _, step, reg_loss = sess.run(
                 [loss, train_op, global_step, regularization_losses], feed_dict=feed_dict)
+        if assign_all:
+            sess.run(assign_all)
         duration = time.time() - start_time
         print('Epoch: [%d][%d/%d]\tTime %.3f\tLoss %2.3f\tRegLoss %2.3f' %
               (epoch, batch_number+1, args.epoch_size, duration, err, np.sum(reg_loss)))
@@ -463,6 +465,7 @@ def create_masks(weights, mask_file):
                  for weight, mask in zip(weights, masks)]
     assign_all = tf.group(*assign_op)
     return assign_all
+
 
 
 def parse_arguments(argv):
