@@ -653,10 +653,14 @@ def get_masks(model_dir, percentile, output_file):
         graph = tf.get_default_graph()
         weights = [tensor.values()[0] for tensor in graph.get_operations()
                    if tensor.name.endswith('weights')]
+        weights_name = [tensor.name for tensor in graph.get_operations()
+                   if tensor.name.endswith('weights')]
         numpy_weights = np.array([weight.eval() for weight in weights])
-        lower_thrs = [np.percentile(weight, percentile / 2.0)
-                      for weight in numpy_weights]
-        upper_thrs = [np.percentile(weight, 100 - percentile / 2.0)
+        lower_thrs = [np.percentile(weight, 4*percentile / 2.0)  
+                      if 'Conv2d' in name else np.percentile(weight, percentile / 2.0)
+                      for weight, name  in zip(numpy_weights, weight_name)]
+        upper_thrs = [np.percentile(weight, 100 - 4 * percentile / 2.0) 
+                      if 'Conv2d' in name else np.percentile(weight, 1 - percentile / 2.0) 
                       for weight in numpy_weights]
         masks = [(weight < lower_thr) + (weight > upper_thr)
                  for weight, lower_thr, upper_thr in zip(numpy_weights, lower_thrs, upper_thrs)]
