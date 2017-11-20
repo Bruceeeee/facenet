@@ -4,6 +4,7 @@ import scipy
 import numpy as np
 import importlib
 
+
 def main():
     with tf.Graph().as_default():
         start_time = time.time()
@@ -27,8 +28,6 @@ def main():
             print("meta file costs {:.2f} seconds for loading".format(
                 time.time() - start_time))
 
-
-
     # with tf.gfile.FastGFile('/home/zhanghantian/models/test_model/graph_def.pb', 'rb') as f:
     #     graph_def = tf.GraphDef()
     #     graph_def.ParseFromString(f.read())
@@ -39,7 +38,6 @@ def main():
     #         print("start loading graph in pb and ckpt ......")
     #         start_time = time.time()
 
-           
     #         sess.run(tf.global_variables_initializer())
     #         sess.run(tf.local_variables_initializer())
     #         saver = tf.train.Saver(tf.global_variables())
@@ -68,10 +66,10 @@ def main():
             sess.run(tf.global_variables_initializer())
             sess.run(tf.local_variables_initializer())
             saver = tf.train.Saver()
-            saver.restore(sess, '/home/zhanghantian/models/test_model/pre-trained/model-20171017-182912.ckpt-80000')
+            saver.restore(
+                sess, '/home/zhanghantian/models/test_model/pre-trained/model-20171017-182912.ckpt-80000')
             print("define by code, ckpt file loading cost {:.2f} seconds to load".format(
                 time.time() - start_time))
-
 
     with tf.Graph().as_default():
         start_time = time.time()
@@ -94,7 +92,7 @@ def main():
             sess.run(tf.global_variables_initializer())
             sess.run(tf.local_variables_initializer())
             tensorLst = tf.global_variables()
-            assign_all = tf.group(*[tf.assign(tensor, numpy_weights[tensor.name]) 
+            assign_all = tf.group(*[tf.assign(tensor, numpy_weights[tensor.name])
                                     for tensor in tensorLst])
             sess.run(assign_all)
 
@@ -123,16 +121,12 @@ def main():
             sess.run(tf.local_variables_initializer())
             tensorLst = tf.global_variables()
 
-            for tensor in tensorLst:
-                try:
-                    sess.run(tf.assign(tensor, numpy_weights[
-                             tensor.name].todense(tensor.get_shape())))
-                    print('assign weight to {}'.format(tensor.name))
-                except ValueError:
-                    print('tf shape is {},numpy shape is {}\n'.format(
-                        tensor.get_shape(), numpy_weights[tensor.name].shape))
-            print("define by code, numpy sparse file loading cost {:.2f} seconds to load".format(
-                time.time() - start_time))
+            assign_all = tf.group(*[tf.assign(tensor, numpy_weights[tensor.name].todense())
+                                    if 'weight' in tensor.name else tf.assign(tensor, numpy_weights[tensor.name])
+                                    for tensor in tensorLst])
+            sess.run(assign_all)
+                print("define by code, numpy sparse  file loading cost {:.2f} seconds to load".format(
+                    time.time() - start_time))
 
 
 if __name__ == '__main__':
