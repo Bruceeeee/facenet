@@ -1,7 +1,7 @@
 import time
 import tensorflow as tf
-import scipy 
-import numpy 
+import scipy
+import numpy
 
 
 def main():
@@ -51,37 +51,43 @@ def main():
                 image_batch = tf.placeholder(tf.float32, [None, 160, 160, 3])
 
                 # Build the inference graph
-                phase_train_placeholder = tf.placeholder(tf.bool, name='phase_train')
+                phase_train_placeholder = tf.placeholder(
+                    tf.bool, name='phase_train')
 
                 prelogits, _ = network.inference(image_batch, 1,
                                                  phase_train=phase_train_placeholder, bottleneck_layer_size=128,
                                                  weight_decay=0.1)
 
-                embeddings = tf.nn.l2_normalize(prelogits, 1, 1e-10, name='embeddings')
+                embeddings = tf.nn.l2_normalize(
+                    prelogits, 1, 1e-10, name='embeddings')
                 sess.run(tf.global_variables_initializer())
                 sess.run(tf.local_variables_initializer())
                 saver = tf.train.Saver()
                 saver.restore(sess, model_dir)
-                print("define by code, ckpt file loading cost {:.2f} seconds to load".format(time.time() - start_time))
+                print("define by code, ckpt file loading cost {:.2f} seconds to load".format(
+                    time.time() - start_time))
 
     with tf.Graph().as_default():
-         with tf.Session() as sess:
+        with tf.Session() as sess:
                 network = importlib.import_module('models.inception_resnet_v1')
                 image_batch = tf.placeholder(tf.float32, [None, 160, 160, 3])
 
                 # Build the inference graph
-                phase_train_placeholder = tf.placeholder(tf.bool, name='phase_train')
+                phase_train_placeholder = tf.placeholder(
+                    tf.bool, name='phase_train')
 
                 prelogits, _ = network.inference(image_batch, 1,
                                                  phase_train=phase_train_placeholder, bottleneck_layer_size=128,
                                                  weight_decay=0.1)
 
-                embeddings = tf.nn.l2_normalize(prelogits, 1, 1e-10, name='embeddings')
+                embeddings = tf.nn.l2_normalize(
+                    prelogits, 1, 1e-10, name='embeddings')
                 sess.run(tf.global_variables_initializer())
                 sess.run(tf.local_variables_initializer())
                 saver = tf.train.Saver()
                 saver.restore(sess, model_dir)
-                print("define by code, ckpt file loading cost {:.2f} seconds to load".format(time.time() - start_time))
+                print("define by code, ckpt file loading cost {:.2f} seconds to load".format(
+                    time.time() - start_time))
 
     with tf.Graph().as_default():
         start_time = time.time()
@@ -91,13 +97,15 @@ def main():
                 image_batch = tf.placeholder(tf.float32, [None, 160, 160, 3])
 
                 # Build the inference graph
-                phase_train_placeholder = tf.placeholder(tf.bool, name='phase_train')
+                phase_train_placeholder = tf.placeholder(
+                    tf.bool, name='phase_train')
 
                 prelogits, _ = network.inference(image_batch, 1,
                                                  phase_train=phase_train_placeholder, bottleneck_layer_size=128,
                                                  weight_decay=0.1)
 
-                embeddings = tf.nn.l2_normalize(prelogits, 1, 1e-10, name='embeddings')
+                embeddings = tf.nn.l2_normalize(
+                    prelogits, 1, 1e-10, name='embeddings')
                 sess.run(tf.global_variables_initializer())
                 sess.run(tf.local_variables_initializer())
                 tensorLst = tf.global_variables()
@@ -109,9 +117,10 @@ def main():
                     except ValueError:
                         print('tf shape is {},numpy shape is {}\n'.format(
                             tensor.get_shape(), numpy_weights[tensor.name].shape))
-                print("define by code, numpy  file loading cost {:.2f} seconds to load".format(time.time() - start_time))
+                print("define by code, numpy  file loading cost {:.2f} seconds to load".format(
+                    time.time() - start_time))
 
-     with tf.Graph().as_default():
+    with tf.Graph().as_default():
         start_time = time.time()
         with tf.Session() as sess:
                 numpy_weights = np.load('data/np_sparse.npy')[()]
@@ -129,7 +138,6 @@ def main():
                 sess.run(tf.global_variables_initializer())
                 sess.run(tf.local_variables_initializer())
                 tensorLst = tf.global_variables()
-
 
                 for tensor in tensorLst:
                     try:
