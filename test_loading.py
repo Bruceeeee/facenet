@@ -1,7 +1,7 @@
 import time
 import tensorflow as tf
 import scipy
-import numpy
+import numpy as np
 import importlib
 
 def main():
@@ -49,6 +49,7 @@ def main():
     #             time.time() - start_time))
 
     with tf.Graph().as_default():
+        print("start code defining and ckpt ")
         start_time = time.time()
         with tf.Session() as sess:
             network = importlib.import_module('models.inception_resnet_v1')
@@ -67,35 +68,15 @@ def main():
             sess.run(tf.global_variables_initializer())
             sess.run(tf.local_variables_initializer())
             saver = tf.train.Saver()
-            saver.restore(sess, model_dir)
+            saver.restore(sess, '/home/zhanghantian/models/test_model/pre-trained/model-20171017-182912.ckpt-80000')
             print("define by code, ckpt file loading cost {:.2f} seconds to load".format(
                 time.time() - start_time))
 
-    with tf.Graph().as_default():
-        with tf.Session() as sess:
-            network = importlib.import_module('models.inception_resnet_v1')
-            image_batch = tf.placeholder(tf.float32, [None, 160, 160, 3])
-
-            # Build the inference graph
-            phase_train_placeholder = tf.placeholder(
-                tf.bool, name='phase_train')
-
-            prelogits, _ = network.inference(image_batch, 1,
-                                             phase_train=phase_train_placeholder, bottleneck_layer_size=128,
-                                             weight_decay=0.1)
-
-            embeddings = tf.nn.l2_normalize(
-                prelogits, 1, 1e-10, name='embeddings')
-            sess.run(tf.global_variables_initializer())
-            sess.run(tf.local_variables_initializer())
-            saver = tf.train.Saver()
-            saver.restore(sess, model_dir)
-            print("define by code, ckpt file loading cost {:.2f} seconds to load".format(
-                time.time() - start_time))
 
     with tf.Graph().as_default():
         start_time = time.time()
         with tf.Session() as sess:
+            print("start loading numpy model")
             numpy_weights = np.load('data/np_data.npy')[()]
             network = importlib.import_module('models.inception_resnet_v1')
             image_batch = tf.placeholder(tf.float32, [None, 160, 160, 3])
@@ -127,6 +108,7 @@ def main():
     with tf.Graph().as_default():
         start_time = time.time()
         with tf.Session() as sess:
+            print("start loading numpy sparse model")
             numpy_weights = np.load('data/np_sparse.npy')[()]
             network = importlib.import_module('models.inception_resnet_v1')
             image_batch = tf.placeholder(tf.float32, [None, 160, 160, 3])
