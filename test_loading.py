@@ -2,7 +2,7 @@ import time
 import tensorflow as tf
 import scipy
 import numpy
-
+import importlib
 
 def main():
     with tf.Graph().as_default():
@@ -32,7 +32,7 @@ def main():
     # with tf.gfile.FastGFile('/home/zhanghantian/models/test_model/graph_def.pb', 'rb') as f:
     #     graph_def = tf.GraphDef()
     #     graph_def.ParseFromString(f.read())
-        
+
     # with tf.Graph().as_default():
     #     start_time = time.time()
     #     with tf.Session() as sess:
