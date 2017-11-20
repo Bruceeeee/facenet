@@ -32,7 +32,7 @@ def main():
         with tf.Session() as sess:
             print("start loading graph in pb and ckpt ......")
             start_time = time.time()
-            with tf.gfile.FastGFile('~/models/test_model/frozen_graph.pb', 'rb') as f:
+            with tf.gfile.FastGFile('/home/zhanghantian/models/test_model/frozen_graph.pb', 'rb') as f:
                 graph_def = tf.GraphDef()
                 graph_def.ParseFromString(f.read())
             tf.import_graph_def(graph_def)
@@ -40,7 +40,7 @@ def main():
             sess.run(tf.local_variables_initializer())
             saver = tf.train.Saver()
             saver.restore(
-                sess, '~/models/pre-trained/model-20171017-182912.ckpt-80000')
+                sess, '/home/zhanghantian/models/pre-trained/model-20171017-182912.ckpt-80000')
             print("pb file with ckpt file loading costs {:.2f} seconds for loading".format(
                 time.time() - start_time))
 
