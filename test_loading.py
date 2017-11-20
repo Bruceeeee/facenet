@@ -125,8 +125,8 @@ def main():
                                     if 'weight' in tensor.name else tf.assign(tensor, numpy_weights[tensor.name])
                                     for tensor in tensorLst])
             sess.run(assign_all)
-                print("define by code, numpy sparse  file loading cost {:.2f} seconds to load".format(
-                    time.time() - start_time))
+            print("define by code, numpy sparse  file loading cost {:.2f} seconds to load".format(
+                  time.time() - start_time))
 
 
 if __name__ == '__main__':
