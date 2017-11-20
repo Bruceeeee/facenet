@@ -32,7 +32,7 @@ def main():
         with tf.Session() as sess:
             print("start loading graph in pb and ckpt ......")
             start_time = time.time()
-            with tf.gfile.FastGFile('/home/zhanghantian/models/test_model/frozen_graph.pb', 'rb') as f:
+            with tf.gfile.FastGFile('/home/zhanghantian/models/test_model/graph_def.pb', 'rb') as f:
                 graph_def = tf.GraphDef()
                 graph_def.ParseFromString(f.read())
             tf.import_graph_def(graph_def)
