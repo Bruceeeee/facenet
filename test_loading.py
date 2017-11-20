@@ -9,7 +9,7 @@ def main():
         start_time = time.time()
         with tf.Session() as sess:
             print("start loading graph in pb file ......")
-            with tf.gfile.FastGFile('~/models/test_model/frozen_graph.pb', 'r') as f:
+            with tf.gfile.FastGFile('/home/zhanghantian/models/test_model/frozen_graph.pb', 'r') as f:
                 graph_def = tf.GraphDef()
                 graph_def.ParseFromString(f.read())
             tf.import_graph_def(graph_def)
@@ -21,9 +21,9 @@ def main():
         with tf.Session() as sess:
             print("start loading graph in meta and ckpt ......")
             saver = tf.train.import_meta_graph(
-                'models/facenet_v2/model-20171017-182912.meta')
+                '/home/zhanghantian/models/test_model/pre-trained/model-20171017-182912.meta')
             saver.restore(
-                sess, 'models/facenet_v2/model-20171017-182912.ckpt-80000')
+                sess, '/home/zhanghantian/models/test_model/pre-trained/model-20171017-182912.ckpt-80000')
             print("meta file costs {:.2f} seconds for loading".format(
                 time.time() - start_time))
 
