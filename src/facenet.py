@@ -284,7 +284,7 @@ def train_pruning(total_loss, global_step, optimizer, learning_rate,
         moving_average_decay, global_step)
     variables_averages_op = variable_averages.apply(tf.trainable_variables())
 
-    with tf.control_dependencies([apply_gradient_op, assign_all, variables_averages_op]):
+    with tf.control_dependencies([apply_gradient_op, variables_averages_op]):
         train_op = tf.no_op(name='train')
 
     return train_op
