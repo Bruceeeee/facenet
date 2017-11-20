@@ -121,7 +121,7 @@ def main():
             sess.run(tf.local_variables_initializer())
             tensorLst = tf.global_variables()
 
-            assign_all = tf.group(*[tf.assign(tensor, numpy_weights[tensor.name].todense())
+            assign_all = tf.group(*[tf.assign(tensor, np.reshape(numpy_weights[tensor.name].todense(), tensor.get_shape()))
                                     if 'weight' in tensor.name else tf.assign(tensor, numpy_weights[tensor.name])
                                     for tensor in tensorLst])
             sess.run(assign_all)
