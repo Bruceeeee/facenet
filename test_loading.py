@@ -94,14 +94,10 @@ def main():
             sess.run(tf.global_variables_initializer())
             sess.run(tf.local_variables_initializer())
             tensorLst = tf.global_variables()
+            assign_all = tf.group(*[tf.assign(tensor, numpy_weights[tensor.name]) 
+                                    for tensor in tensorLst])
+            sess.run(assign_all)
 
-            for tensor in tensorLst:
-                try:
-                    sess.run(tf.assign(tensor, numpy_weights[tensor.name]))
-                    print('assign weight to {}'.format(tensor.name))
-                except ValueError:
-                    print('tf shape is {},numpy shape is {}\n'.format(
-                        tensor.get_shape(), numpy_weights[tensor.name].shape))
             print("define by code, numpy  file loading cost {:.2f} seconds to load".format(
                 time.time() - start_time))
 
