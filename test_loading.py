@@ -33,7 +33,7 @@ def main():
             print("start loading graph in pb and ckpt ......")
             start_time = time.time()
             with tf.gfile.FastGFile('/home/zhanghantian/models/test_model/graph_def.pb', 'rb') as f:
-                graph_def = tf.GraphDef()
+                graph_def = tf.get_default_graph().as_graph_def()
                 graph_def.ParseFromString(f.read())
             tf.import_graph_def(graph_def)
             sess.run(tf.global_variables_initializer())
