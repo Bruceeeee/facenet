@@ -12,7 +12,7 @@ def dense_to_sparse(dense_model, sparse_model):
         else:
             sp_data[key] = value
 
-    np.save(sparse_model, sparse)
+    np.save(sparse_model, sp_data)
 
 
 def main(args):
