@@ -1,11 +1,12 @@
 import time
 import importlib
+import sys
 
 import numpy as np
 import tensorflow as tf
 import tensorflow.contrib.slim as slim
 
-def save_weights_np(model_dir):
+def save_weights_np(model_dir, file_name):
     start_time = time.time()
     with tf.Session() as sess:
         network = importlib.import_module('models.inception_resnet_v1')
@@ -28,13 +29,13 @@ def save_weights_np(model_dir):
         weights = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES)
         data = {weight.name: weight.eval() for weight in weights}
         numpy_data = np.array(data)
-        np.save('../data/np_data', numpy_data)
+        np.save(file_name, numpy_data)
 
 
 
-def main():
+def main(args):
     save_weights_np(
-        model_dir='/Users/finally/Desktop/code_examples/myfacenet/models/facenet_v2/model-20171017-182912.ckpt-80000')
+        model_dir=args[0], file_name=args[1])
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1:])

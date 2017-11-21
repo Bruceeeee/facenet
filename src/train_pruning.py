@@ -204,7 +204,7 @@ def main(args):
         # Generate masks for weights
         weights = [tensor.values()[0] for tensor in tf.get_default_graph().get_operations()
                    if tensor.name.endswith('weights')]
-        assign_all = create_masks(weights, args.mask_file)
+        assign_all = apply_masks(weights, args.mask_file)
 
         # Build a Graph that trains the model with one batch of examples and
         # updates the model parameters
@@ -459,7 +459,7 @@ def save_variables_and_metagraph(sess, saver, summary_writer, model_dir, model_n
     summary_writer.add_summary(summary, step)
 
 
-def create_masks(weights, mask_file):
+def apply_masks(weights, mask_file):
     masks = np.load(mask_file, encoding='bytes')
     assign_op = [tf.assign(weight, tf.multiply(weight, mask))
                  for weight, mask in zip(weights, masks)]
