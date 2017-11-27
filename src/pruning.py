@@ -4,17 +4,23 @@ import tensorflow as tf
 import facenet
 
 
-def get_masks(weights, percentile, output_file, layer_type):
+def get_masks(weights, percentile, output_file, layer_type=None):
     """ Use percentile to get weight mask"""
     weights_name = [tensor.name for tensor in graph.get_operations()
                     if tensor.name.endswith('weights')]
     numpy_weights = np.array([weight.eval() for weight in weights])
-    lower_thrs = [np.percentile(weight[weight != 0], percentile / 2.0)
-                  if layer_type in name else np.zeros(weight.shape)
-                  for weight, name in zip(numpy_weights, weights_name)]
-    upper_thrs = [np.percentile(weight[weight != 0], 100 - percentile / 2.0)
-                  if layer_type in name else np.zeros(weight.shape)
-                  for weight, name in zip(numpy_weights, weights_name)]
+    lower_thrs, upper_thrs = [], []
+    for weight, name in zip(numpy_weights, weights_name):
+        if layer_type==None :
+            lower_thr = np.percentile(weight[weight != 0], percentile / 2.0)
+            upper_thr = np.percentile(weight[weight != 0], 100 - percentile / 2.0)
+        elif name in layer_type:
+            lower_thr = np.percentile(weight[weight != 0], percentile / 2.0)
+            upper_thr = np.percentile(weight[weight != 0], 100 - percentile / 2.0)
+        else:
+            lower_thr = upper_thr = 0
+        lower_thrs.append(lower_thr)
+        upper_thrs.append(upper_thr)
     masks = [(weight <= lower_thr) + (weight >= upper_thr)
              for weight, lower_thr, upper_thr in zip(numpy_weights, lower_thrs, upper_thrs)]
     return masks
