@@ -9,7 +9,6 @@ def get_masks(weights, percentile, layer_type=None):
     weights_name = [tensor.name for tensor in graph.get_operations()
                     if tensor.name.endswith('weights')]
     numpy_weights = np.array([weight.eval() for weight in weights])
-    print(numpy_weights[0])
     lower_thrs, upper_thrs = [], []
     for weight, name in zip(numpy_weights, weights_name):
         if layer_type==None :
@@ -60,7 +59,7 @@ if __name__ == '__main__':
         assign_all = apply_masks(weights, masks)
         sess.run(assign_all)
         cal_pruning_rate(weights)
-        masks = get_masks(weights=weights, percentile=50,
+        masks = get_masks(weights=weights, percentile=20,
                           layer_type=None)
         assign_all = apply_masks(weights, masks)
         sess.run(assign_all)
