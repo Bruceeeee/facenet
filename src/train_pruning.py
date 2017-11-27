@@ -36,6 +36,7 @@ import numpy as np
 import importlib
 import argparse
 import facenet
+import pruning
 import lfw
 import h5py
 import tensorflow.contrib.slim as slim
@@ -47,6 +48,7 @@ from tensorflow.python.ops import array_ops
 def main(args):
 
     network = importlib.import_module(args.model_def)
+    pruning_rate = args.pruning_rate
 
     subdir = datetime.strftime(datetime.now(), '%Y%m%d-%H%M%S')
     log_dir = os.path.join(os.path.expanduser(args.logs_base_dir), subdir)
@@ -201,16 +203,14 @@ def main(args):
         total_loss = tf.add_n([cross_entropy_mean] +
                               regularization_losses, name='total_loss')
 
-        # Generate masks for weights
-        weights = [tensor.values()[0] for tensor in tf.get_default_graph().get_operations()
-                   if tensor.name.endswith('weights')]
-        assign_all = apply_masks(weights, args.mask_file)
+       
+       
 
         # Build a Graph that trains the model with one batch of examples and
         # updates the model parameters
         train_op = facenet.train_pruning(total_loss, global_step, args.optimizer,
-                           learning_rate, args.moving_average_decay,
-                           tf.global_variables(), args.log_histograms, assign_all)
+                                         learning_rate, args.moving_average_decay,
+                                         tf.global_variables(), args.log_histograms, assign_all)
 
         # Create a saver
         saver = tf.train.Saver(tf.trainable_variables(), max_to_keep=3)
@@ -231,6 +231,8 @@ def main(args):
 
         with sess.as_default():
 
+            weights = [tensor.values()[0] for tensor in tf.get_default_graph().get_operations()
+                   if tensor.name.endswith('weights')]
             if pretrained_model:
                 print('Restoring pretrained model: %s' % pretrained_model)
                 saver.restore(sess, pretrained_model)
@@ -238,22 +240,26 @@ def main(args):
             # Training and validation loop
             print('Running training')
             epoch = 0
-            while epoch < args.max_nrof_epochs:
-                step = sess.run(global_step, feed_dict=None)
-                epoch = step // args.epoch_size
-                # Train for one epoch
-                train_pruning(args, sess, epoch, image_list, label_list, index_dequeue_op, enqueue_op, image_paths_placeholder, labels_placeholder,
-                      learning_rate_placeholder, phase_train_placeholder, batch_size_placeholder, global_step,
-                      total_loss, train_op, summary_op, summary_writer, regularization_losses, args.learning_rate_schedule_file, assign_all)
+            for rate in range(args.pruning_rate):
+                # Generate masks for weights
+                pruning.get_masks(weights)
+                assign_all = pruning.apply_masks(weights, mask_file, args.layer_type)
+                while epoch < args.max_nrof_epochs:
+                    step = sess.run(global_step, feed_dict=None)
+                    epoch = step // args.epoch_size
+                    # Train for one epoch
+                    train_pruning(args, sess, epoch, image_list, label_list, index_dequeue_op, enqueue_op, image_paths_placeholder, labels_placeholder,
+                                  learning_rate_placeholder, phase_train_placeholder, batch_size_placeholder, global_step,
+                                  total_loss, train_op, summary_op, summary_writer, regularization_losses, args.learning_rate_schedule_file, assign_all)
 
-                # Save variables and the metagraph if it doesn't exist already
-                save_variables_and_metagraph(
-                    sess, saver, summary_writer, model_dir, subdir, step)
+                    # Save variables and the metagraph if it doesn't exist already
+                    save_variables_and_metagraph(
+                        sess, saver, summary_writer, model_dir, subdir, step)
 
-                # Evaluate on LFW
-                if args.lfw_dir:
-                    evaluate(sess, enqueue_op, image_paths_placeholder, labels_placeholder, phase_train_placeholder, batch_size_placeholder,
-                             embeddings, label_batch, lfw_paths, actual_issame, args.lfw_batch_size, args.lfw_nrof_folds, log_dir, step, summary_writer)
+                    # Evaluate on LFW
+                    if args.lfw_dir:
+                        evaluate(sess, enqueue_op, image_paths_placeholder, labels_placeholder, phase_train_placeholder, batch_size_placeholder,
+                                 embeddings, label_batch, lfw_paths, actual_issame, args.lfw_batch_size, args.lfw_nrof_folds, log_dir, step, summary_writer)
     return model_dir
 
 
@@ -338,10 +344,11 @@ def train(args, sess, epoch, image_list, label_list, index_dequeue_op, enqueue_o
     summary_writer.add_summary(summary, step)
     return step
 
+
 def train_pruning(args, sess, epoch, image_list, label_list, index_dequeue_op, enqueue_op, image_paths_placeholder, labels_placeholder,
-          learning_rate_placeholder, phase_train_placeholder, batch_size_placeholder, global_step,
-          loss, train_op, summary_op, summary_writer, regularization_losses, learning_rate_schedule_file,
-          assign_all=None):
+                  learning_rate_placeholder, phase_train_placeholder, batch_size_placeholder, global_step,
+                  loss, train_op, summary_op, summary_writer, regularization_losses, learning_rate_schedule_file,
+                  assign_all=None):
     batch_number = 0
 
     if args.learning_rate > 0.0:
@@ -459,12 +466,6 @@ def save_variables_and_metagraph(sess, saver, summary_writer, model_dir, model_n
     summary_writer.add_summary(summary, step)
 
 
-def apply_masks(weights, mask_file):
-    masks = np.load(mask_file, encoding='bytes')
-    assign_op = [tf.assign(weight, tf.multiply(weight, mask))
-                 for weight, mask in zip(weights, masks)]
-    assign_all = tf.group(*assign_op)
-    return assign_all
 
 
 
@@ -546,8 +547,10 @@ def parse_arguments(argv):
                         help='Number of images to process in a batch in the LFW test set.', default=100)
     parser.add_argument('--lfw_nrof_folds', type=int,
                         help='Number of folds to use for cross validation. Mainly used for testing.', default=10)
-    parser.add_argument('--mask_file', type=str,
-                        help='The file save your mask for weights', default='data/mask.npy')
+    parser.add_argument('--pruning_rate', type=str,
+                        help='The file save your pruning rate for epoch', default='data/pruning_rate.txt')
+    parser.add_argument('--layer_type', type=str,
+                        help='The layer that you want to prune', default='None')
     return parser.parse_args(argv)
 
 

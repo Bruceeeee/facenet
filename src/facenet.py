@@ -647,26 +647,6 @@ def put_images_on_grid(images, shape=(16, 8)):
     return img
 
 
-def get_masks(model_dir, percentile, output_file):
-    with tf.Session() as sess:
-        load_model(model_dir)
-        graph = tf.get_default_graph()
-        weights = [tensor.values()[0] for tensor in graph.get_operations()
-                   if tensor.name.endswith('weights')]
-        weights_name = [tensor.name for tensor in graph.get_operations()
-                        if tensor.name.endswith('weights')]
-        numpy_weights = np.array([weight.eval() for weight in weights])
-        lower_thrs = [np.percentile(weight, 3* percentile / 2.0)
-                      if 'Conv2d' in name else np.percentile(weight, percentile / 2.0)
-                      for weight, name in zip(numpy_weights, weights_name)]
-        upper_thrs = [np.percentile(weight, 100 - 3 * percentile / 2.0)
-                      if 'Conv2d' in name else np.percentile(weight, 100 - percentile / 2.0)
-                      for weight, name in zip(numpy_weights, weights_name)]
-        masks = [(weight < lower_thr) + (weight > upper_thr)
-                 for weight, lower_thr, upper_thr in zip(numpy_weights, lower_thrs, upper_thrs)]
-        np.save(output_file, masks)
-
-
 def write_arguments_to_file(args, filename):
     with open(filename, 'w') as f:
         for key, value in iteritems(vars(args)):
