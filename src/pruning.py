@@ -3,8 +3,9 @@ import numpy as np
 import tensorflow as tf
 import facenet
 
+
 def get_masks(weights, percentile, output_file, layer_type):
-	""" Use percentile to get weight mask"""
+    """ Use percentile to get weight mask"""
     weights_name = [tensor.name for tensor in graph.get_operations()
                     if tensor.name.endswith('weights')]
     numpy_weights = np.array([weight.eval() for weight in weights])
@@ -18,12 +19,14 @@ def get_masks(weights, percentile, output_file, layer_type):
              for weight, lower_thr, upper_thr in zip(numpy_weights, lower_thrs, upper_thrs)]
     return masks
 
+
 def cal_pruning_rate( weights):
     nrof_zeros = np.sum(np.array([sum(weight.eval()==0) for weight in weights]))
     total_w = np.sum(np.array([weight.eval().size for weight in weights]))
     print("The total number of weights is {} and {} zeros after pruning".format(total_w,nrof_zeros))
     print("The pruning rate is {:3f}".format(nrof_zeros * 1.0 / total_w))
     return total_w, nrof_zeros
+
 
 def apply_masks(weights, masks, layer_type=None):
     if layer_type is not None:
