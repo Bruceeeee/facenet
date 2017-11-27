@@ -38,15 +38,15 @@ def apply_masks(weights, masks, layer_type=None):
 
 
 if __name__ == '__main__':
-	with tf.Session() as sess:
-		model_dir = '/Users/finally/Desktop/code_examples/myfacenet/models/facenet_v2/model-20171017-182912.ckpt-80000'
-		facenet.load_model(model_dir)
+    with tf.Session() as sess:
+        model_dir = '/Users/finally/Desktop/code_examples/myfacenet/models/facenet_v2/model-20171017-182912.ckpt-80000'
+        facenet.load_model(model_dir)
         print("load mdoel now ......")
-		graph = tf.get_default_graph()
-	    weights = [tensor.values()[0] for tensor in graph.get_operations()
-	                   if tensor.name.endswith('weights')]
-	    masks = get_masks(weights=weights, percentile=50,
-	              output_file='../data/mask_50', layer_type='None')
+        graph = tf.get_default_graph()
+        weights = [tensor.values()[0] for tensor in graph.get_operations()
+                    if tensor.name.endswith('weights')]
+        masks = get_masks(weights=weights, percentile=50,
+                          output_file='../data/mask_50', layer_type='None')
         assign_all = apply_masks(weights, masks)
         sess.run(assign_all)
         cal_pruning_rate(weights)
