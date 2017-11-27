@@ -55,7 +55,7 @@ if __name__ == '__main__':
         weights = [tensor.values()[0] for tensor in graph.get_operations()
                     if tensor.name.endswith('weights')]
         masks = get_masks(weights=weights, percentile=50,
-                          output_file='../data/mask_50', layer_type='None')
+                          output_file='../data/mask_50', layer_type=None)
         print(masks[0])
         assign_all = apply_masks(weights, masks)
         sess.run(assign_all)
