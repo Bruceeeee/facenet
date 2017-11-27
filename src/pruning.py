@@ -42,7 +42,7 @@ def apply_masks(weights, masks, layer_type=None):
 
 if __name__ == '__main__':
     with tf.Session() as sess:
-        model_dir = '/home/zhanghantian/models/pre-trained/model-20171017-182912.ckpt-80000'
+        model_dir = '/home/zhanghantian/models/pre-trained/'
         facenet.load_model(model_dir)
         print("load mdoel now ......")
         graph = tf.get_default_graph()
