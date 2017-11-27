@@ -4,7 +4,7 @@ import tensorflow as tf
 import facenet
 
 
-def get_masks(weights, percentile, output_file, layer_type=None):
+def get_masks(weights, percentile, layer_type=None):
     """ Use percentile to get weight mask"""
     weights_name = [tensor.name for tensor in graph.get_operations()
                     if tensor.name.endswith('weights')]
@@ -31,7 +31,7 @@ def cal_pruning_rate( weights):
     nrof_zeros = np.sum(np.array([sum(weight.eval().ravel()==0) for weight in weights]))
     total_w = np.sum(np.array([weight.eval().size for weight in weights]))
     print("The total number of weights is {} and {} zeros after pruning".format(total_w,nrof_zeros))
-    print("The pruning rate is {:3f}".format(nrof_zeros * 1.0 / total_w))
+    print("The pruning rate is {:.3f}".format(nrof_zeros * 1.0 / total_w))
     return total_w, nrof_zeros
 
 
@@ -56,8 +56,12 @@ if __name__ == '__main__':
         weights = [tensor.values()[0] for tensor in graph.get_operations()
                     if tensor.name.endswith('weights')]
         masks = get_masks(weights=weights, percentile=50,
-                          output_file='../data/mask_50', layer_type=None)
-        print(masks[0])
+                          layer_type=None)
+        assign_all = apply_masks(weights, masks)
+        sess.run(assign_all)
+        cal_pruning_rate(weights)
+        masks = get_masks(weights=weights, percentile=50,
+                          layer_type=None)
         assign_all = apply_masks(weights, masks)
         sess.run(assign_all)
         cal_pruning_rate(weights)

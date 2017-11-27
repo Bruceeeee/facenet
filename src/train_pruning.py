@@ -203,8 +203,7 @@ def main(args):
         total_loss = tf.add_n([cross_entropy_mean] +
                               regularization_losses, name='total_loss')
 
-       
-       
+
 
         # Build a Graph that trains the model with one batch of examples and
         # updates the model parameters
@@ -242,11 +241,13 @@ def main(args):
             epoch = 0
             for rate in range(args.pruning_rate):
                 # Generate masks for weights
-                pruning.get_masks(weights)
-                assign_all = pruning.apply_masks(weights, mask_file, args.layer_type)
+                masks = pruning.get_masks(weights, percentile)
+                assign_all = pruning.apply_masks(weights, masks)
+                sess.run(assign_all)
                 while epoch < args.max_nrof_epochs:
                     step = sess.run(global_step, feed_dict=None)
                     epoch = step // args.epoch_size
+                    cal_pruning_rate(weights)
                     # Train for one epoch
                     train_pruning(args, sess, epoch, image_list, label_list, index_dequeue_op, enqueue_op, image_paths_placeholder, labels_placeholder,
                                   learning_rate_placeholder, phase_train_placeholder, batch_size_placeholder, global_step,
