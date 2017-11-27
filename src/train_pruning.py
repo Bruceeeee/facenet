@@ -209,7 +209,7 @@ def main(args):
         # updates the model parameters
         train_op = facenet.train_pruning(total_loss, global_step, args.optimizer,
                                          learning_rate, args.moving_average_decay,
-                                         tf.global_variables(), args.log_histograms, assign_all)
+                                         tf.global_variables(), args.log_histograms)
 
         # Create a saver
         saver = tf.train.Saver(tf.trainable_variables(), max_to_keep=3)
