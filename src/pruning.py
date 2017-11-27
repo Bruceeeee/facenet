@@ -11,12 +11,14 @@ def get_masks(weights, percentile, layer_type=None):
     numpy_weights = np.array([weight.eval() for weight in weights])
     lower_thrs, upper_thrs = [], []
     for weight, name in zip(numpy_weights, weights_name):
-        if layer_type==None :
+        if layer_type is None:
             lower_thr = np.percentile(weight[weight != 0], percentile / 2.0)
-            upper_thr = np.percentile(weight[weight != 0], 100 - percentile / 2.0)
+            upper_thr = np.percentile(
+                weight[weight != 0], 100 - percentile / 2.0)
         elif name in layer_type:
             lower_thr = np.percentile(weight[weight != 0], percentile / 2.0)
-            upper_thr = np.percentile(weight[weight != 0], 100 - percentile / 2.0)
+            upper_thr = np.percentile(
+                weight[weight != 0], 100 - percentile / 2.0)
         else:
             lower_thr = upper_thr = 0
         lower_thrs.append(lower_thr)
@@ -26,10 +28,12 @@ def get_masks(weights, percentile, layer_type=None):
     return masks
 
 
-def cal_pruning_rate( weights):
-    nrof_zeros = np.sum(np.array([sum(weight.eval().ravel()==0) for weight in weights]))
+def cal_pruning_rate(weights):
+    nrof_zeros = np.sum(
+        np.array([sum(weight.eval().ravel() == 0) for weight in weights]))
     total_w = np.sum(np.array([weight.eval().size for weight in weights]))
-    print("The total number of weights is {} and {} zeros after pruning".format(total_w,nrof_zeros))
+    print("The total number of weights is {} and {} zeros after pruning".format(
+        total_w, nrof_zeros))
     print("The pruning rate is {:.3f}".format(nrof_zeros * 1.0 / total_w))
     return total_w, nrof_zeros
 
@@ -47,7 +51,7 @@ def apply_masks(weights, masks, layer_type=None):
 
 
 def load_prun_rate(prune_file):
-    pruning_rate = np,loadtxt(prune_file)
+    pruning_rate = np.loadtxt(prune_file)
     return pruning_rate
 
 if __name__ == '__main__':
