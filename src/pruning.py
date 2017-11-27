@@ -46,6 +46,10 @@ def apply_masks(weights, masks, layer_type=None):
     return assign_all
 
 
+def load_prun_rate(prune_file):
+    pruning_rate = np,loadtxt(prune_file)
+    return pruning_rate
+
 if __name__ == '__main__':
     with tf.Session() as sess:
         model_dir = '/home/zhanghantian/models/pre-trained/'
@@ -54,13 +58,10 @@ if __name__ == '__main__':
         graph = tf.get_default_graph()
         weights = [tensor.values()[0] for tensor in graph.get_operations()
                     if tensor.name.endswith('weights')]
-        masks = get_masks(weights=weights, percentile=50,
-                          layer_type=None)
-        assign_all = apply_masks(weights, masks)
-        sess.run(assign_all)
-        cal_pruning_rate(weights)
-        masks = get_masks(weights=weights, percentile=20,
-                          layer_type=None)
-        assign_all = apply_masks(weights, masks)
-        sess.run(assign_all)
-        cal_pruning_rate(weights)
+        pruning_rate = load_prun_rate('../data/pruning_rate.txt')
+        for rate in pruning_rate
+            masks = get_masks(weights=weights, percentile=rate,
+                              layer_type=None)
+            assign_all = apply_masks(weights, masks)
+            sess.run(assign_all)
+            cal_pruning_rate(weights)
