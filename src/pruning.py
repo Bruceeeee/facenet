@@ -9,6 +9,7 @@ def get_masks(weights, percentile, output_file, layer_type=None):
     weights_name = [tensor.name for tensor in graph.get_operations()
                     if tensor.name.endswith('weights')]
     numpy_weights = np.array([weight.eval() for weight in weights])
+    print(numpy_weights[0])
     lower_thrs, upper_thrs = [], []
     for weight, name in zip(numpy_weights, weights_name):
         if layer_type==None :
