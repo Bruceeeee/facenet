@@ -57,9 +57,9 @@ if __name__ == '__main__':
         print("load mdoel now ......")
         graph = tf.get_default_graph()
         weights = [tensor.values()[0] for tensor in graph.get_operations()
-                    if tensor.name.endswith('weights')]
+                   if tensor.name.endswith('weights')]
         pruning_rate = load_prun_rate('../data/pruning_rate.txt')
-        for rate in pruning_rate
+        for rate in pruning_rate:
             masks = get_masks(weights=weights, percentile=rate,
                               layer_type=None)
             assign_all = apply_masks(weights, masks)
