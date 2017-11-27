@@ -21,7 +21,7 @@ def get_masks(weights, percentile, output_file, layer_type):
 
 
 def cal_pruning_rate( weights):
-    nrof_zeros = np.sum(np.array([sum(weight.eval()==0) for weight in weights]))
+    nrof_zeros = np.sum(np.array([sum(weight.eval().ravel()==0) for weight in weights]))
     total_w = np.sum(np.array([weight.eval().size for weight in weights]))
     print("The total number of weights is {} and {} zeros after pruning".format(total_w,nrof_zeros))
     print("The pruning rate is {:3f}".format(nrof_zeros * 1.0 / total_w))
