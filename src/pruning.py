@@ -52,7 +52,7 @@ def apply_masks(weights, masks, layer_type=None):
 
 
 def load_prun_rate(prune_file):
-    pruning_rate = np.loadtxt(prune_file)
+    pruning_rate = np.loadtxt(prune_file).astype(np.float32)
     return pruning_rate
 
 if __name__ == '__main__':
