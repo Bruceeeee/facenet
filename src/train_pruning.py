@@ -49,6 +49,7 @@ def main(args):
 
     network = importlib.import_module(args.model_def)
     pruning_rate = pruning.load_prun_rate(args.pruning_rate)
+    gpu_device = args.gpu_device
 
     subdir = datetime.strftime(datetime.now(), '%Y%m%d-%H%M%S')
     log_dir = os.path.join(os.path.expanduser(args.logs_base_dir), subdir)
@@ -220,7 +221,7 @@ def main(args):
         # Start running operations on the Graph.
         gpu_options = tf.GPUOptions(
             per_process_gpu_memory_fraction=args.gpu_memory_fraction)
-        sess = tf.Session(config=tf.ConfigProto(
+        sess = tf.Session(config=tf.ConfigProto(device_count = {'GPU': gpu_device},
             gpu_options=gpu_options, log_device_placement=False))
         sess.run(tf.global_variables_initializer())
         sess.run(tf.local_variables_initializer())
@@ -552,6 +553,8 @@ def parse_arguments(argv):
                         help='The file save your pruning rate for epoch', default='data/pruning_rate.txt')
     parser.add_argument('--layer_type', type=str,
                         help='The layer that you want to prune', default='None')
+    parser.add_argument('--gpu_device', type=int,
+                        help='choose which gpu to train', default=0)
     return parser.parse_args(argv)
 
 
