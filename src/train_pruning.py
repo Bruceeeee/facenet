@@ -231,7 +231,7 @@ def main(args):
         with sess.as_default():
 
             weights = [tensor.values()[0] for tensor in tf.get_default_graph().get_operations()
-                   if tensor.name.endswith('weights')]
+                       if tensor.name.endswith('weights')]
             if pretrained_model:
                 print('Restoring pretrained model: %s' % pretrained_model)
                 saver.restore(sess, pretrained_model)
@@ -241,13 +241,13 @@ def main(args):
             epoch = 0
             for rate in args.pruning_rate:
                 # Generate masks for weights
-                masks = pruning.get_masks(weights, percentile)
+                masks = pruning.get_masks(weights, rate)
                 assign_all = pruning.apply_masks(weights, masks)
                 sess.run(assign_all)
                 while epoch < args.max_nrof_epochs:
                     step = sess.run(global_step, feed_dict=None)
                     epoch = step // args.epoch_size
-                    cal_pruning_rate(weights)
+                    pruning.cal_pruning_rate(weights)
                     # Train for one epoch
                     train_pruning(args, sess, epoch, image_list, label_list, index_dequeue_op, enqueue_op, image_paths_placeholder, labels_placeholder,
                                   learning_rate_placeholder, phase_train_placeholder, batch_size_placeholder, global_step,
