@@ -6,7 +6,7 @@ import facenet
 
 def get_masks(weights, percentile, layer_type=None):
     """ Use percentile to get weight mask"""
-    weights_name = [tensor.name for tensor in graph.get_operations()
+    weights_name = [tensor.name for tensor in tf.get_default_graph().get_operations()
                     if tensor.name.endswith('weights')]
     numpy_weights = np.array([weight.eval() for weight in weights])
     lower_thrs, upper_thrs = [], []
@@ -24,7 +24,8 @@ def get_masks(weights, percentile, layer_type=None):
         lower_thrs.append(lower_thr)
         upper_thrs.append(upper_thr)
     masks = [(weight <= lower_thr) + (weight >= upper_thr)
-             for weight, lower_thr, upper_thr in zip(numpy_weights, lower_thrs, upper_thrs)]
+             for weight, lower_thr, upper_thr in
+             zip(numpy_weights, lower_thrs, upper_thrs)]
     return masks
 
 
