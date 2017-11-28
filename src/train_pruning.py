@@ -48,7 +48,7 @@ from tensorflow.python.ops import array_ops
 def main(args):
 
     network = importlib.import_module(args.model_def)
-    pruning_rate = args.pruning_rate
+    pruning_rate = pruning.load_prun_rate(args.pruning_rate)
 
     subdir = datetime.strftime(datetime.now(), '%Y%m%d-%H%M%S')
     log_dir = os.path.join(os.path.expanduser(args.logs_base_dir), subdir)
@@ -239,7 +239,7 @@ def main(args):
             # Training and validation loop
             print('Running training')
             epoch = 0
-            for rate in args.pruning_rate:
+            for rate in pruning_rate:
                 # Generate masks for weights
                 masks = pruning.get_masks(weights, rate)
                 assign_all = pruning.apply_masks(weights, masks)
