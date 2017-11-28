@@ -240,10 +240,9 @@ def main(args):
 
             # Training and validation loop
             print('Running training')
-            epoch = 0
-            print(pruning_rate)
             for rate in pruning_rate:
                 # Generate masks for weights
+                epoch = 0
                 masks = pruning.get_masks(weights, rate)
                 assign_all = pruning.apply_masks(weights, masks)
                 sess.run(assign_all)
@@ -271,7 +270,7 @@ def find_threshold(var, percentile):
     hist, bin_edges = np.histogram(var, 100)
     cdf = np.float32(np.cumsum(hist)) / np.sum(hist)
     bin_centers = (bin_edges[:-1]+bin_edges[1:])/2
-    #plt.plot(bin_centers, cdf)
+    # plt.plot(bin_centers, cdf)
     threshold = np.interp(percentile*0.01, cdf, bin_centers)
     return threshold
 
