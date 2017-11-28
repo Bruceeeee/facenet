@@ -241,6 +241,7 @@ def main(args):
             # Training and validation loop
             print('Running training')
             epoch = 0
+            print(pruning_rate)
             for rate in pruning_rate:
                 # Generate masks for weights
                 masks = pruning.get_masks(weights, rate)
