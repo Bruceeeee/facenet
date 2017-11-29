@@ -106,7 +106,7 @@ def main(args):
                                                     shuffle=True, seed=None, capacity=32)
 
         index_dequeue_op = index_queue.dequeue_many(
-            args.batch_size*args.epoch_size, 'index_dequeue')
+            args.batch_size * args.epoch_size, 'index_dequeue')
 
         learning_rate_placeholder = tf.placeholder(
             tf.float32, name='learning_rate')
@@ -204,8 +204,6 @@ def main(args):
         total_loss = tf.add_n([cross_entropy_mean] +
                               regularization_losses, name='total_loss')
 
-
-
         # Build a Graph that trains the model with one batch of examples and
         # updates the model parameters
         train_op = facenet.train_pruning(total_loss, global_step, args.optimizer,
@@ -241,27 +239,25 @@ def main(args):
             # Training and validation loop
             epoch = 0
             print('Running training')
-        
+
             while epoch < args.max_nrof_epochs:
                 step = sess.run(global_step, feed_dict=None)
                 epoch = step // args.epoch_size
-                if epoch%5 == 0:
-                    rate = pruning_rate[epoch//5]
-                    
-                    # Generate masks for weights    
+                if epoch % 5 == 0:
+                    rate = pruning_rate[epoch // 5]
+
+                    # Generate masks for weights
                     masks = pruning.get_masks(weights, rate)
                     assign_all = pruning.apply_masks(weights, masks)
                     sess.run(assign_all)
 
-
-                
                 # Train for one epoch
                 train_pruning(args, sess, epoch, image_list, label_list, index_dequeue_op, enqueue_op, image_paths_placeholder, labels_placeholder,
                               learning_rate_placeholder, phase_train_placeholder, batch_size_placeholder, global_step,
                               total_loss, train_op, summary_op, summary_writer, regularization_losses, args.learning_rate_schedule_file, assign_all)
 
                 # Save variables and the metagraph if it doesn't exist already
-                rate, _, _pruning.cal_pruning_rate(weights)
+                rate, _, _ = pruning.cal_pruning_rate(weights)
                 save_variables_and_metagraph(
                     sess, saver, summary_writer, model_dir, subdir, step)
 
@@ -275,9 +271,9 @@ def main(args):
 def find_threshold(var, percentile):
     hist, bin_edges = np.histogram(var, 100)
     cdf = np.float32(np.cumsum(hist)) / np.sum(hist)
-    bin_centers = (bin_edges[:-1]+bin_edges[1:])/2
+    bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
     # plt.plot(bin_centers, cdf)
-    threshold = np.interp(percentile*0.01, cdf, bin_centers)
+    threshold = np.interp(percentile * 0.01, cdf, bin_centers)
     return threshold
 
 
@@ -473,9 +469,6 @@ def save_variables_and_metagraph(sess, saver, summary_writer, model_dir, model_n
     summary.value.add(tag='time/save_metagraph',
                       simple_value=save_time_metagraph)
     summary_writer.add_summary(summary, step)
-
-
-
 
 
 def parse_arguments(argv):
