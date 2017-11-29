@@ -239,31 +239,37 @@ def main(args):
                 saver.restore(sess, pretrained_model)
 
             # Training and validation loop
+            epoch = 0
             print('Running training')
-            for rate in pruning_rate:
-                # Generate masks for weights
-                epoch = 0
-                masks = pruning.get_masks(weights, rate)
-                assign_all = pruning.apply_masks(weights, masks)
-                sess.run(assign_all)
-                while epoch < args.max_nrof_epochs:
-                    step = sess.run(global_step, feed_dict=None)
-                    epoch = step // args.epoch_size
-                    pruning.cal_pruning_rate(weights)
-                    # Train for one epoch
-                    train_pruning(args, sess, epoch, image_list, label_list, index_dequeue_op, enqueue_op, image_paths_placeholder, labels_placeholder,
-                                  learning_rate_placeholder, phase_train_placeholder, batch_size_placeholder, global_step,
-                                  total_loss, train_op, summary_op, summary_writer, regularization_losses, args.learning_rate_schedule_file, assign_all)
+        
+            while epoch < args.max_nrof_epochs:
+                step = sess.run(global_step, feed_dict=None)
+                epoch = step // args.epoch_size
+                if epoch%5 == 0:
+                    rate = pruning_rate[epoch//5]
+                    
+                    # Generate masks for weights    
+                    masks = pruning.get_masks(weights, rate)
+                    assign_all = pruning.apply_masks(weights, masks)
+                    sess.run(assign_all)
 
-                    # Save variables and the metagraph if it doesn't exist already
-                    save_variables_and_metagraph(
-                        sess, saver, summary_writer, model_dir, subdir, step)
 
-                    # Evaluate on LFW
-                    if args.lfw_dir:
-                        evaluate(sess, enqueue_op, image_paths_placeholder, labels_placeholder, phase_train_placeholder, batch_size_placeholder,
-                                 embeddings, label_batch, lfw_paths, actual_issame, args.lfw_batch_size, args.lfw_nrof_folds, log_dir, step, summary_writer)
-    return model_dir
+                
+                # Train for one epoch
+                train_pruning(args, sess, epoch, image_list, label_list, index_dequeue_op, enqueue_op, image_paths_placeholder, labels_placeholder,
+                              learning_rate_placeholder, phase_train_placeholder, batch_size_placeholder, global_step,
+                              total_loss, train_op, summary_op, summary_writer, regularization_losses, args.learning_rate_schedule_file, assign_all)
+
+                # Save variables and the metagraph if it doesn't exist already
+                rate, _, _pruning.cal_pruning_rate(weights)
+                save_variables_and_metagraph(
+                    sess, saver, summary_writer, model_dir, subdir, step)
+
+                # Evaluate on LFW
+                if args.lfw_dir:
+                    evaluate(sess, enqueue_op, image_paths_placeholder, labels_placeholder, phase_train_placeholder, batch_size_placeholder,
+                             embeddings, label_batch, lfw_paths, actual_issame, args.lfw_batch_size, args.lfw_nrof_folds, log_dir, step, summary_writer)
+            return model_dir
 
 
 def find_threshold(var, percentile):
