@@ -243,8 +243,8 @@ def main(args):
             while epoch < args.max_nrof_epochs:
                 step = sess.run(global_step, feed_dict=None)
                 epoch = step // args.epoch_size
-                if epoch % 5 == 0:
-                    rate = pruning_rate[epoch // 5]
+                if epoch % 20 == 0:
+                    rate = pruning_rate[epoch // 20]
 
                     # Generate masks for weights
                     masks = pruning.get_masks(weights, rate)
