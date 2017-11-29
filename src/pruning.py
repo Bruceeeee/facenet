@@ -35,8 +35,9 @@ def cal_pruning_rate(weights):
     total_w = np.sum(np.array([weight.eval().size for weight in weights]))
     print("The total number of weights is {} and {} zeros after pruning".format(
         total_w, nrof_zeros))
-    print("The pruning rate is {:.3f}".format(nrof_zeros * 1.0 / total_w))
-    return total_w, nrof_zeros
+    rate = nrof_zeros * 1.0 / total_w
+    print("The pruning rate is {:.3f}".format(rate))
+    return rate, total_w, nrof_zeros
 
 
 def apply_masks(weights, masks, layer_type=None):
@@ -57,16 +58,18 @@ def load_prun_rate(prune_file):
 
 if __name__ == '__main__':
     with tf.Session() as sess:
-        model_dir = '/home/zhanghantian/models/pre-trained/'
+        model_dir = '/home/zhanghantian/models/facenet/20171128-231508'
         facenet.load_model(model_dir)
         print("load mdoel now ......")
         graph = tf.get_default_graph()
         weights = [tensor.values()[0] for tensor in graph.get_operations()
                    if tensor.name.endswith('weights')]
+        cal_pruning_rate(weights)
         pruning_rate = load_prun_rate('../data/pruning_rate.txt')
-        for rate in pruning_rate:
-            masks = get_masks(weights=weights, percentile=rate,
-                              layer_type=None)
-            assign_all = apply_masks(weights, masks)
-            sess.run(assign_all)
-            cal_pruning_rate(weights)
+        print(pruning_rate)
+        # for rate in pruning_rate:
+        #     masks = get_masks(weights=weights, percentile=rate,
+        #                       layer_type=None)
+        #     assign_all = apply_masks(weights, masks)
+        #     sess.run(assign_all)
+        #     cal_pruning_rate(weights)
