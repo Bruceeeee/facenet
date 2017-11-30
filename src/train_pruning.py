@@ -227,7 +227,8 @@ def main(args):
         summary_writer = tf.summary.FileWriter(log_dir, sess.graph)
         coord = tf.train.Coordinator()
         tf.train.start_queue_runners(coord=coord, sess=sess)
-
+        iterative_turns = len(pruning_rate)
+        iterative_epoch = args.max_nrof_epochs//iterative_turns
         with sess.as_default():
 
             weights = [tensor.values()[0] for tensor in tf.get_default_graph().get_operations()
@@ -243,8 +244,8 @@ def main(args):
             while epoch < args.max_nrof_epochs:
                 step = sess.run(global_step, feed_dict=None)
                 epoch = step // args.epoch_size
-                if epoch % 20 == 0:
-                    rate = pruning_rate[epoch // 20]
+                if epoch % iterative_epoch == 0 and epoch != args.max_nrof_epochs:
+                    rate = pruning_rate[epoch // iterative_epoch]
 
                     # Generate masks for weights
                     masks = pruning.get_masks(weights, rate)
