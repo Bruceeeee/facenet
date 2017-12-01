@@ -59,6 +59,7 @@ def load_prun_rate(prune_file):
     with open(prune_file, 'r') as f:
         for line in f.readlines():
             iter_rate.append(tuple(line.split(':')))
+    return iter_rate
 
 
 def write_log(rate, epoch, log_dir):
