@@ -56,7 +56,7 @@ def apply_masks(weights, masks, layer_type=None):
 
 def load_prun_rate(prune_file):
     iter_rate = []
-    with open(filename, 'r') as f:
+    with open(prune_file, 'r') as f:
         for line in f.readlines():
             iter_rate.appned(tuple(line.split(':')))
 
