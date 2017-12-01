@@ -249,9 +249,8 @@ def main(args):
                     rate = pruning_rate[0][1]
                 if iterative_epoch == pruning_rate[iterative_turn][0]:
                     iterative_turn += 1
-                    rate = pruning_rate[iterative_turn]
+                    rate = pruning_rate[iterative_turn][1]
 
-                pruning.write_log(rate, epoch, log_dir)
                 # Generate masks for weights
                 masks = pruning.get_masks(weights, rate)
                 assign_all = pruning.apply_masks(weights, masks)
@@ -264,7 +263,8 @@ def main(args):
                 iterative_epoch += 1
 
                 # Save variables and the metagraph if it doesn't exist already
-                rate, _, _ = pruning.cal_pruning_rate(weights)
+                model_rate, _, _ = pruning.cal_pruning_rate(weights)
+                pruning.write_log(model_rate, epoch, log_dir)
                 print("train in iterative {}, pruning_rate is {:.3f}".format(
                     iterative_turn, rate))
                 save_variables_and_metagraph(
