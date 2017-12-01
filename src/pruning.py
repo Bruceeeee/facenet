@@ -75,10 +75,10 @@ if __name__ == '__main__':
         cal_pruning_rate(weights)
         pruning_rate = load_prun_rate('../data/pruning_rate.txt')
         print(pruning_rate)
-        write_log(50, 2, os.path.expanduser('~'))
         for rate in pruning_rate:
             masks = get_masks(weights=weights, percentile=rate,
                               layer_type=None)
+            write_log(rate, 2, os.path.expanduser('~'))
             assign_all = apply_masks(weights, masks)
             sess.run(assign_all)
             cal_pruning_rate(weights)
