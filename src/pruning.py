@@ -1,4 +1,6 @@
 """Some function for pruning"""
+
+import os 
 import numpy as np
 import tensorflow as tf
 import facenet
@@ -56,6 +58,12 @@ def load_prun_rate(prune_file):
     pruning_rate = np.loadtxt(prune_file).astype(np.float32)
     return pruning_rate
 
+
+def write_log(rate, epoch, log_dir):
+    with open(os.path.join(log_dir, 'pruning_rate.txt'), 'at') as f:
+        f.write('epoch:%d\t%d\t\n' % (epoch, rate)
+
+
 if __name__ == '__main__':
     with tf.Session() as sess:
         model_dir = '/home/zhanghantian/models/facenet/20171128-231508'
@@ -67,6 +75,7 @@ if __name__ == '__main__':
         cal_pruning_rate(weights)
         pruning_rate = load_prun_rate('../data/pruning_rate.txt')
         print(pruning_rate)
+        write_log(50, 2, os.path.expanduser('~'))
         for rate in pruning_rate:
             masks = get_masks(weights=weights, percentile=rate,
                               layer_type=None)

@@ -245,6 +245,9 @@ def main(args):
                 step = sess.run(global_step, feed_dict=None)
                 epoch = step // args.epoch_size
                 if epoch % iterative_epoch == 0 and epoch != args.max_nrof_epochs:
+                    if epoch == 0:
+                        rate = pruning_rate[0]
+                    pruning.write_log(rate, epoch, log_dir)
                     rate = pruning_rate[epoch // iterative_epoch]
 
                     # Generate masks for weights
@@ -445,6 +448,7 @@ def evaluate(sess, enqueue_op, image_paths_placeholder, labels_placeholder, phas
     summary_writer.add_summary(summary, step)
     with open(os.path.join(log_dir, 'lfw_result.txt'), 'at') as f:
         f.write('%d\t%.5f\t%.5f\n' % (step, np.mean(accuracy), val))
+
 
 
 def save_variables_and_metagraph(sess, saver, summary_writer, model_dir, model_name, step):
