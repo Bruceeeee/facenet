@@ -49,6 +49,7 @@ def main(args):
 
     network = importlib.import_module(args.model_def)
     pruning_rate = pruning.load_prun_rate(args.pruning_rate)
+    max_nrof_epochs = sum(x[0] for x in pruning_rate)
     gpu_device = args.gpu_device
 
     subdir = datetime.strftime(datetime.now(), '%Y%m%d-%H%M%S')
@@ -227,8 +228,7 @@ def main(args):
         summary_writer = tf.summary.FileWriter(log_dir, sess.graph)
         coord = tf.train.Coordinator()
         tf.train.start_queue_runners(coord=coord, sess=sess)
-        iterative_turns = len(pruning_rate)
-        iterative_epoch = args.max_nrof_epochs//iterative_turns
+
         with sess.as_default():
 
             weights = [tensor.values()[0] for tensor in tf.get_default_graph().get_operations()
@@ -236,32 +236,37 @@ def main(args):
             if pretrained_model:
                 print('Restoring pretrained model: %s' % pretrained_model)
                 saver.restore(sess, pretrained_model)
-
+            iterative_turn = 0
+            iterative_epoch = 1
             # Training and validation loop
             epoch = 0
             print('Running training')
 
-            while epoch < args.max_nrof_epochs:
+            while epoch < max_nrof_epochs:
                 step = sess.run(global_step, feed_dict=None)
                 epoch = step // args.epoch_size
-                if epoch % iterative_epoch == 0 and epoch != args.max_nrof_epochs:
-                    if epoch == 0:
-                        rate = pruning_rate[0]
-                    pruning.write_log(rate, epoch, log_dir)
-                    rate = pruning_rate[epoch // iterative_epoch]
+                if epoch == 0:
+                    rate = pruning_rate[0][1]
+                if iterative_epoch == pruning_rate[iterative_turn][0]:
+                    iterative_turn += 1
+                    rate = pruning_rate[iterative_turn]
 
-                    # Generate masks for weights
-                    masks = pruning.get_masks(weights, rate)
-                    assign_all = pruning.apply_masks(weights, masks)
-                    sess.run(assign_all)
+                pruning.write_log(rate, epoch, log_dir)
+                # Generate masks for weights
+                masks = pruning.get_masks(weights, rate)
+                assign_all = pruning.apply_masks(weights, masks)
+                sess.run(assign_all)
 
                 # Train for one epoch
                 train_pruning(args, sess, epoch, image_list, label_list, index_dequeue_op, enqueue_op, image_paths_placeholder, labels_placeholder,
                               learning_rate_placeholder, phase_train_placeholder, batch_size_placeholder, global_step,
                               total_loss, train_op, summary_op, summary_writer, regularization_losses, args.learning_rate_schedule_file, assign_all)
+                iterative_epoch += 1
 
                 # Save variables and the metagraph if it doesn't exist already
                 rate, _, _ = pruning.cal_pruning_rate(weights)
+                print("train in iterative {}, pruning_rate is {:.3f}".format(
+                    iterative_turn, rate))
                 save_variables_and_metagraph(
                     sess, saver, summary_writer, model_dir, subdir, step)
 
@@ -450,7 +455,6 @@ def evaluate(sess, enqueue_op, image_paths_placeholder, labels_placeholder, phas
         f.write('%d\t%.5f\t%.5f\n' % (step, np.mean(accuracy), val))
 
 
-
 def save_variables_and_metagraph(sess, saver, summary_writer, model_dir, model_name, step):
     # Save the model checkpoint
     print('Saving variables')
@@ -492,8 +496,6 @@ def parse_arguments(argv):
                         default='~/datasets/casia/casia_maxpy_mtcnnalign_182_160')
     parser.add_argument('--model_def', type=str,
                         help='Model definition. Points to a module containing the definition of the inference graph.', default='models.inception_resnet_v1')
-    parser.add_argument('--max_nrof_epochs', type=int,
-                        help='Number of epochs to run.', default=500)
     parser.add_argument('--batch_size', type=int,
                         help='Number of images to process in a batch.', default=70)
     parser.add_argument('--image_size', type=int,
