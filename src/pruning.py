@@ -59,7 +59,7 @@ def load_prun_rate(prune_file):
     with open(prune_file, 'r') as f:
         for line in f.readlines():
             content = line.strip().split(':')
-            iter_rate.append(tuple(int(content[0]), int(content[1])))
+            iter_rate.append(tuple((int(content[0]), int(content[1]))))
     return iter_rate
 
 
