@@ -1,6 +1,6 @@
 """Some function for pruning"""
 
-import os 
+import os
 import numpy as np
 import tensorflow as tf
 import facenet
@@ -55,8 +55,10 @@ def apply_masks(weights, masks, layer_type=None):
 
 
 def load_prun_rate(prune_file):
-    pruning_rate = np.loadtxt(prune_file).astype(np.float32)
-    return pruning_rate
+    iter_rate = []
+    with open(filename, 'r') as f:
+        for line in f.readlines():
+            iter_rate.appned(tuple(line.split(':')))
 
 
 def write_log(rate, epoch, log_dir):
@@ -75,7 +77,7 @@ if __name__ == '__main__':
         cal_pruning_rate(weights)
         pruning_rate = load_prun_rate('../data/pruning_rate.txt')
         print(pruning_rate)
-        for rate in pruning_rate:
+        for epoch, rate in pruning_rate:
             masks = get_masks(weights=weights, percentile=rate,
                               layer_type=None)
             write_log(rate, 2, os.path.expanduser('~'))
