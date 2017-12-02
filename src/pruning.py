@@ -65,7 +65,7 @@ def load_prun_rate(prune_file):
 
 def write_log(rate, epoch, log_dir):
     with open(os.path.join(log_dir, 'pruning_rate.txt'), 'at') as f:
-        f.write('epoch:%d\t%d\t\n' % (epoch, rate))
+        f.write('epoch:%d\t%f\t\n' % (epoch, rate))
 
 
 if __name__ == '__main__':
