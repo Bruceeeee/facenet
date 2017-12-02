@@ -249,10 +249,7 @@ def main(args):
                     rate = pruning_rate[0][1]
                     masks = pruning.get_masks(weights, rate)
                     assign_all = pruning.apply_masks(weights, masks)
-                if iterative_epoch == pruning_rate[iterative_turn][0]:
-                    iterative_turn += 1
-                    rate = pruning_rate[iterative_turn][1]
-                    iterative_epoch = 1
+
 
                     # Generate masks for weights
                     masks = pruning.get_masks(weights, rate)
@@ -264,6 +261,10 @@ def main(args):
                               learning_rate_placeholder, phase_train_placeholder, batch_size_placeholder, global_step,
                               total_loss, train_op, summary_op, summary_writer, regularization_losses, args.learning_rate_schedule_file, assign_all)
                 iterative_epoch += 1
+                if iterative_epoch == pruning_rate[iterative_turn][0]:
+                    iterative_turn += 1
+                    rate = pruning_rate[iterative_turn][1]
+                    iterative_epoch = 1
 
                 # Save variables and the metagraph if it doesn't exist already
                 model_rate, _, _ = pruning.cal_pruning_rate(weights)
