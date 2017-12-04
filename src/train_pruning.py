@@ -252,8 +252,7 @@ def main(args):
 
 
                     # Generate masks for weights
-                    masks = pruning.get_masks(weights, rate)
-                    assign_all = pruning.apply_masks(weights, masks)
+                    
                 sess.run(assign_all)
 
                 # Train for one epoch
@@ -265,6 +264,8 @@ def main(args):
                     iterative_turn += 1
                     rate = pruning_rate[iterative_turn][1]
                     iterative_epoch = 1
+                    masks = pruning.get_masks(weights, rate)
+                    assign_all = pruning.apply_masks(weights, masks)
 
                 # Save variables and the metagraph if it doesn't exist already
                 model_rate, _, _ = pruning.cal_pruning_rate(weights)
