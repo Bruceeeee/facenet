@@ -10,6 +10,7 @@ def get_masks(weights, percentile, layer_type=None):
     """ Use percentile to get weight mask"""
     weights_name = [tensor.name for tensor in tf.get_default_graph().get_operations()
                     if tensor.name.endswith('weights')]
+    print(weights_name)
     numpy_weights = np.array([weight.eval() for weight in weights])
     lower_thrs, upper_thrs = [], []
     for weight, name in zip(numpy_weights, weights_name):
