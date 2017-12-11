@@ -81,7 +81,7 @@ if __name__ == '__main__':
         print(pruning_rate)
         for epoch, rate in pruning_rate:
             masks = get_masks(weights=weights, percentile=rate,
-                              layer_type=None)
+                              layer_type='Repeat2')
             write_log(rate, 2, os.path.expanduser('~'))
             assign_all = apply_masks(weights, masks)
             sess.run(assign_all)

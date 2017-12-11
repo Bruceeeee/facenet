@@ -251,7 +251,7 @@ def main(args):
                     assign_all = pruning.apply_masks(weights, masks, 'Repeat2')
 
 
-                    # Generate masks for weights
+                # Generate masks for weights
 
                 sess.run(assign_all)
 
