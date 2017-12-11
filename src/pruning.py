@@ -17,7 +17,7 @@ def get_masks(weights, percentile, layer_type=None):
             lower_thr = np.percentile(weight[weight != 0], percentile / 2.0)
             upper_thr = np.percentile(
                 weight[weight != 0], 100 - percentile / 2.0)
-        elif name in layer_type:
+        elif layer_type in name:
             print(name)
             lower_thr = np.percentile(weight[weight != 0], percentile / 2.0)
             upper_thr = np.percentile(
