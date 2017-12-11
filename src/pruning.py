@@ -70,7 +70,7 @@ def write_log(rate, epoch, log_dir):
 
 if __name__ == '__main__':
     with tf.Session() as sess:
-        model_dir = '/home/zhanghantian/models/facenet/20171128-231508'
+        model_dir = '/home/zhanghantian/models/pre-trained'
         facenet.load_model(model_dir)
         print("load mdoel now ......")
         graph = tf.get_default_graph()
