@@ -247,8 +247,8 @@ def main(args):
                 epoch = step // args.epoch_size
                 if epoch == 0:
                     rate = pruning_rate[0][1]
-                    masks = pruning.get_masks(weights, rate, 'Repeat2')
-                    assign_all = pruning.apply_masks(weights, masks, 'Repeat2')
+                    masks = pruning.get_masks(weights, rate, 'Repeat_2')
+                    assign_all = pruning.apply_masks(weights, masks, 'Repeat_2')
 
 
                 # Generate masks for weights
@@ -265,8 +265,8 @@ def main(args):
                     if iterative_turn < len(pruning_rate):
                         rate = pruning_rate[iterative_turn][1]
                         iterative_epoch = 1
-                        masks = pruning.get_masks(weights, rate, 'Repeat2')
-                        assign_all = pruning.apply_masks(weights, masks, 'Repeat2')
+                        masks = pruning.get_masks(weights, rate, 'Repeat_2')
+                        assign_all = pruning.apply_masks(weights, masks, 'Repeat_2')
 
                 # Save variables and the metagraph if it doesn't exist already
                 model_rate, _, _ = pruning.cal_pruning_rate(weights)
