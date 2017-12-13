@@ -247,8 +247,8 @@ def main(args):
                 epoch = step // args.epoch_size
                 if epoch == 0:
                     rate = pruning_rate[0][1]
-                    masks = pruning.get_masks(weights, rate, 'Repeat_2')
-                    assign_all = pruning.apply_masks(weights, masks, 'Repeat_2')
+                    masks = pruning.get_masks(weights, rate, args.pruning_layer)
+                    assign_all = pruning.apply_masks(weights, masks, args.pruning_layer)
 
 
                 # Generate masks for weights
@@ -265,8 +265,8 @@ def main(args):
                     if iterative_turn < len(pruning_rate):
                         rate = pruning_rate[iterative_turn][1]
                         iterative_epoch = 1
-                        masks = pruning.get_masks(weights, rate, 'Repeat_2')
-                        assign_all = pruning.apply_masks(weights, masks, 'Repeat_2')
+                        masks = pruning.get_masks(weights, rate, args.pruning_layer)
+                        assign_all = pruning.apply_masks(weights, masks, args.pruning_layer)
 
                 # Save variables and the metagraph if it doesn't exist already
                 model_rate, _, _ = pruning.cal_pruning_rate(weights)
@@ -568,6 +568,8 @@ def parse_arguments(argv):
                         help='The layer that you want to prune', default='None')
     parser.add_argument('--gpu_device', type=str,
                         help='choose which gpu to train', default=0)
+    parser.add_argument('--pruning_layer', type=str,
+                        help='choose which layer to prune', default=None)
     return parser.parse_args(argv)
 
 
