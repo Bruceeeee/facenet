@@ -6,28 +6,30 @@ import tensorflow as tf
 import facenet
 
 
-def get_masks(weights, percentile, layer_type=None):
+def get_masks(weights, percentile, layer_type=None, fix_layer=None):
     """ Use percentile to get weight mask"""
-    weights_name = [tensor.name for tensor in tf.get_default_graph().get_operations()
+    weights_name = [tensor.name for tensor in
+                    tf.get_default_graph().get_operations()
                     if tensor.name.endswith('weights')]
     numpy_weights = np.array([weight.eval() for weight in weights])
-    lower_thrs, upper_thrs = [], []
+    masks = []
     for weight, name in zip(numpy_weights, weights_name):
-        if layer_type is None:
+        if fix_layer in name:
+            mask = (weight != 0)
+        elif layer_type is None:
             lower_thr = np.percentile(weight[weight != 0], percentile / 2.0)
             upper_thr = np.percentile(
                 weight[weight != 0], 100 - percentile / 2.0)
+            mask = (weight <= lower_thr) + (weight >= upper_thr)
         elif layer_type in name:
             lower_thr = np.percentile(weight[weight != 0], percentile / 2.0)
             upper_thr = np.percentile(
                 weight[weight != 0], 100 - percentile / 2.0)
+            mask = (weight <= lower_thr) + (weight >= upper_thr)
         else:
             lower_thr = upper_thr = 0
-        lower_thrs.append(lower_thr)
-        upper_thrs.append(upper_thr)
-    masks = [(weight <= lower_thr) + (weight >= upper_thr)
-             for weight, lower_thr, upper_thr in
-             zip(numpy_weights, lower_thrs, upper_thrs)]
+            mask = (weight <= lower_thr) + (weight >= upper_thr)
+        masks.append(mask)
     return masks
 
 
@@ -42,14 +44,9 @@ def cal_pruning_rate(weights):
     return rate, total_w, nrof_zeros
 
 
-def apply_masks(weights, masks, layer_type=None):
-    if layer_type is not None:
-        assign_op = [tf.assign(weight, tf.multiply(weight, mask))
-                     for weight, mask in zip(weights, masks)
-                     if layer_type in weight.name]
-    else:
-        assign_op = [tf.assign(weight, tf.multiply(weight, mask))
-                     for weight, mask in zip(weights, masks)]
+def apply_masks(weights, masks):
+    assign_op = [tf.assign(weight, tf.multiply(weight, mask))
+                 for weight, mask in zip(weights, masks)]
     assign_all = tf.group(*assign_op)
     return assign_all
 
