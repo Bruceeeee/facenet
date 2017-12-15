@@ -570,6 +570,8 @@ def parse_arguments(argv):
                         help='choose which gpu to train', default=0)
     parser.add_argument('--pruning_layer', type=str,
                         help='choose which layer to prune', default=None)
+    parser.add_argument('--fix_layer', type=str,
+                        help='choose which layer to fix', default=None)
     return parser.parse_args(argv)
 
 
