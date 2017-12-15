@@ -13,9 +13,9 @@ def get_masks(weights, percentile, layer_type=None, fix_layer=None):
                     if tensor.name.endswith('weights')]
     numpy_weights = np.array([weight.eval() for weight in weights])
     masks = []
+    fix_op = (fix_layer is None)
     for weight, name in zip(numpy_weights, weights_name):
-        if fix_layer is not None:
-            if fix_layer in name:
+        if fix_op and fix_layer in name:
                 mask = (weight != 0)
         elif layer_type is None:
             lower_thr = np.percentile(weight[weight != 0], percentile / 2.0)
