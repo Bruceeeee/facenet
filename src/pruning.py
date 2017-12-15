@@ -13,7 +13,7 @@ def get_masks(weights, percentile, layer_type=None, fix_layer=None):
                     if tensor.name.endswith('weights')]
     numpy_weights = np.array([weight.eval() for weight in weights])
     masks = []
-    fix_op = (fix_layer == None)
+    fix_op = (fix_layer != None)
     for weight, name in zip(numpy_weights, weights_name):
         if fix_op and fix_layer in name:
                 mask = (weight != 0)
