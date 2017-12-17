@@ -13,23 +13,28 @@ def get_masks(weights, percentile, layer_type=None, fix_layer=None):
                     if tensor.name.endswith('weights')]
     numpy_weights = np.array([weight.eval() for weight in weights])
     masks = []
-    fix_op = fix_layer is not None
+
     for weight, name in zip(numpy_weights, weights_name):
-        if fix_op and fix_layer in name:
-            mask = (weight != 0)
-        elif layer_type is None:
-            lower_thr = np.percentile(weight[weight != 0], percentile / 2.0)
-            upper_thr = np.percentile(
-                weight[weight != 0], 100 - percentile / 2.0)
-            mask = (weight <= lower_thr) + (weight >= upper_thr)
-        elif layer_type in name:
-            lower_thr = np.percentile(weight[weight != 0], percentile / 2.0)
-            upper_thr = np.percentile(
-                weight[weight != 0], 100 - percentile / 2.0)
-            mask = (weight <= lower_thr) + (weight >= upper_thr)
-        else:
-            lower_thr = upper_thr = 0
-            mask = (weight <= lower_thr) + (weight >= upper_thr)
+        fix = False
+        if fix_layer is not None:
+            if fix_layer in name:
+                mask = (weight != 0)
+                fix = True
+        if fix is not True:
+            if layer_type is None:
+                lower_thr = np.percentile(
+                    weight[weight != 0], percentile / 2.0)
+                upper_thr = np.percentile(
+                    weight[weight != 0], 100 - percentile / 2.0)
+                mask = (weight <= lower_thr) + (weight >= upper_thr)
+            elif layer_type in name:
+                lower_thr = np.percentile(
+                    weight[weight != 0], percentile / 2.0)
+                upper_thr = np.percentile(
+                    weight[weight != 0], 100 - percentile / 2.0)
+                mask = (weight <= lower_thr) + (weight >= upper_thr)
+            elif layer_type is not None:
+                mask = np.ones(weight.shape)
         masks.append(mask)
     return masks
 
@@ -40,7 +45,9 @@ def cal_pruning_rate(weights):
     total_w = np.sum(np.array([weight.eval().size for weight in weights]))
     print("The total number of weights is {} and {} zeros after pruning".format(
         total_w, nrof_zeros))
-    rate = nrof_zeros * 1.0 / total_w
+    rate = nrof_zeros * 1.0 /
+
+    total_w
     print("The pruning rate is {:.3f}".format(rate))
     return rate, total_w, nrof_zeros
 
