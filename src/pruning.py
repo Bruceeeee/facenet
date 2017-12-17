@@ -45,9 +45,7 @@ def cal_pruning_rate(weights):
     total_w = np.sum(np.array([weight.eval().size for weight in weights]))
     print("The total number of weights is {} and {} zeros after pruning".format(
         total_w, nrof_zeros))
-    rate = nrof_zeros * 1.0 /
-
-    total_w
+    rate = nrof_zeros * 1.0 / total_w
     print("The pruning rate is {:.3f}".format(rate))
     return rate, total_w, nrof_zeros
 
