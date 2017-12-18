@@ -266,7 +266,7 @@ def main(args):
                         rate = pruning_rate[iterative_turn][1]
                         iterative_epoch = 1
                         masks = pruning.get_masks(weights, rate, args.pruning_layer)
-                        assign_all = pruning.apply_masks(weights)
+                        assign_all = pruning.apply_masks(weights, masks)
 
                 # Save variables and the metagraph if it doesn't exist already
                 model_rate, _, _ = pruning.cal_pruning_rate(weights)
